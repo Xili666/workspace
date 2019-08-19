@@ -1,9 +1,9 @@
 package xyz.xili.workspace.dao.impl;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -12,10 +12,8 @@ import xyz.xili.workspace.bean.BaseBean;
 import xyz.xili.workspace.dao.CommonDao;
 
 import javax.annotation.Resource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public abstract class CommonDaoImpl<T extends BaseBean> implements CommonDao<T> {
 
@@ -54,6 +52,37 @@ public abstract class CommonDaoImpl<T extends BaseBean> implements CommonDao<T> 
     }
 
     @Override
+    public List<T> queryObjectList(String[] fields, Object[] params) {
+        StringBuilder sql = new StringBuilder("select * from " + getTableName());
+        if (ArrayUtils.isNotEmpty(fields) && ArrayUtils.isNotEmpty(params) && ArrayUtils.isSameLength(fields, params)) {
+            sql.append(" where ");
+            for (int i = 0, fieldsLength = fields.length; i < fieldsLength; i++) {
+                if (i > 0) {
+                    sql.append(" and").append(fields[i]).append(" = ?");
+                } else {
+                    sql.append(fields[i]).append(" = ?");
+                }
+            }
+        }
+        return queryObjectList(sql.toString(), params);
+    }
+
+    @Override
+    public List<T> queryObjectList(String sql, Object[] params) {
+        try {
+            return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(getBeanClass()), params);
+        } catch (DataAccessException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public List<T> queryObjectListByWhere(String where, Object[] params) {
+        String sql = "select * from " + getTableName() + " where " + where;
+        return queryObjectList(sql, params);
+    }
+
+    @Override
     public boolean update(T bean) {
         String sql = "update " + getTableName() + " set rowversion = rowversion + 1, modifyon = current_timestamp, modifyby = :modifyBy "
                 + getUpdateFieldSql() + " where id = :id and rowversion = :rowVersion";
@@ -65,6 +94,15 @@ public abstract class CommonDaoImpl<T extends BaseBean> implements CommonDao<T> 
     public boolean delete(long id) {
         String sql = "delete from " + getTableName() + " where id = ?";
         return jdbcTemplate.update(sql, id) > 0;
+    }
+
+    @Override
+    public boolean delete(T bean) {
+        if (bean != null && bean.getId() != null) {
+            return delete(bean.getId());
+        } else {
+            throw new NullPointerException("对象没有ID!");
+        }
     }
 
     private String getUpdateFieldSql() {

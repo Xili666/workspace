@@ -9,6 +9,8 @@ import xyz.xili.workspace.dao.ContentDao;
 
 import javax.annotation.Resource;
 
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 @SpringBootTest
@@ -38,8 +40,37 @@ public class ContentDaoImplTest {
         boolean update = contentDao.update(content);
         System.out.println(update);
     }
+
     @Test
     public void testDelete() {
         contentDao.delete(1L);
+    }
+
+
+    @Test
+    public void testQueryObjectList() {
+        List<Content> contents = contentDao.queryObjectList(new String[]{"content"}, new Object[]{"123456"});
+        for (Content content : contents) {
+            System.out.println(content);
+        }
+
+    }
+
+    @Test
+    public void testQueryObjectList2() {
+        List<Content> contents = contentDao.queryObjectList("select * from t_content", new Object[]{});
+        for (Content content : contents) {
+            System.out.println(content);
+        }
+
+    }
+
+    @Test
+    public void testQueryObjectListByWhere() {
+        List<Content> contents = contentDao.queryObjectListByWhere("content like ?", new Object[]{"%1%"});
+        for (Content content : contents) {
+            System.out.println(content);
+        }
+
     }
 }
