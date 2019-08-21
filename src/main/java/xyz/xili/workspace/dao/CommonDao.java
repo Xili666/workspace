@@ -9,9 +9,13 @@ public interface CommonDao<T extends BaseBean> {
 
     T query(long id);
 
-    List<T> queryObjectList(String[] fields, Object[] params);
+    T queryObjectByFields(String[] fields, Object[] params);
+
+    List<T> queryObjectListByFields(String[] fields, Object[] params);
 
     List<T> queryObjectList(String sql, Object[] params);
+
+    T queryObjectByWhere(String where, Object[] params);
 
     List<T> queryObjectListByWhere(String where, Object[] params);
 
@@ -20,4 +24,6 @@ public interface CommonDao<T extends BaseBean> {
     boolean delete(long id);
 
     boolean delete(T bean);
+
+    boolean insertOrUpdate(T bean);
 }

@@ -18,6 +18,6 @@ public class ContentDaoImpl extends CommonDaoImpl<Content> implements ContentDao
 
     @Override
     String[] getCanUpdateFields() {
-        return new String[]{"content"};
+        return new String[]{"content", "belongDate"};
     }
 }

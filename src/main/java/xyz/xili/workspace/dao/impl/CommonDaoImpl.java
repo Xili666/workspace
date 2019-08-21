@@ -52,7 +52,16 @@ public abstract class CommonDaoImpl<T extends BaseBean> implements CommonDao<T> 
     }
 
     @Override
-    public List<T> queryObjectList(String[] fields, Object[] params) {
+    public T queryObjectByFields(String[] fields, Object[] params) {
+        List<T> ts = queryObjectListByFields(fields, params);
+        if (!ts.isEmpty()) {
+            return ts.get(0);
+        }
+        return null;
+    }
+
+    @Override
+    public List<T> queryObjectListByFields(String[] fields, Object[] params) {
         StringBuilder sql = new StringBuilder("select * from " + getTableName());
         if (ArrayUtils.isNotEmpty(fields) && ArrayUtils.isNotEmpty(params) && ArrayUtils.isSameLength(fields, params)) {
             sql.append(" where ");
@@ -74,6 +83,15 @@ public abstract class CommonDaoImpl<T extends BaseBean> implements CommonDao<T> 
         } catch (DataAccessException e) {
             return null;
         }
+    }
+
+    @Override
+    public T queryObjectByWhere(String where, Object[] params) {
+        List<T> ts = queryObjectListByWhere(where, params);
+        if (!ts.isEmpty()) {
+            return ts.get(0);
+        }
+        return null;
     }
 
     @Override
@@ -103,6 +121,15 @@ public abstract class CommonDaoImpl<T extends BaseBean> implements CommonDao<T> 
         } else {
             throw new NullPointerException("对象没有ID!");
         }
+    }
+
+    @Override
+    public boolean insertOrUpdate(T bean) {
+        boolean insert = insert(bean);
+        if (!insert) {
+            return update(bean);
+        }
+        return true;
     }
 
     private String getUpdateFieldSql() {

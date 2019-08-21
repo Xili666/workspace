@@ -5,6 +5,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.time.LocalDate;
+
 /**
  * 文本内容
  */
@@ -15,7 +17,10 @@ import lombok.ToString;
 @NoArgsConstructor
 public class Content extends BaseBean {
     public static final String TABLE_NAME = "t_content";
+
     private String content;
+
+    private LocalDate belongDate;
 
     public Content(String content) {
         this.content = content;

@@ -9,9 +9,8 @@ import xyz.xili.workspace.dao.ContentDao;
 
 import javax.annotation.Resource;
 
+import java.time.LocalDate;
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -23,6 +22,7 @@ public class ContentDaoImplTest {
     @Test
     public void testInsert() {
         Content content = new Content("qwertyuiop;.,mnbvcdfhjkl");
+        content.setBelongDate(LocalDate.now());
         contentDao.insert(content);
     }
 
@@ -49,7 +49,7 @@ public class ContentDaoImplTest {
 
     @Test
     public void testQueryObjectList() {
-        List<Content> contents = contentDao.queryObjectList(new String[]{"content"}, new Object[]{"123456"});
+        List<Content> contents = contentDao.queryObjectListByFields(new String[]{"belongDate"}, new Object[]{LocalDate.now()});
         for (Content content : contents) {
             System.out.println(content);
         }
